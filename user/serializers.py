@@ -20,12 +20,15 @@ class UserSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
+        can_be_contacted = validated_data.pop('can_be_contacted', True)
+        can_data_be_shared = validated_data.pop('can_data_be_shared', True)
+        
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password'],
             date_of_birth=validated_data['date_of_birth'],
-            can_be_contacted=validated_data['can_be_contacted', True],
-            can_data_be_shared=validated_data['can_data_be_shared', True],
+            can_be_contacted=can_be_contacted,
+            can_data_be_shared=can_data_be_shared
         )
         return user
