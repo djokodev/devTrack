@@ -55,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'user.middleware.RefreshJWTMiddleware',
+    'project.middleware.CustomUnauthorizedMiddleware',
 ]   
 
 ROOT_URLCONF = 'devTrack.urls'

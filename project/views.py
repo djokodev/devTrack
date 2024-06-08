@@ -3,14 +3,14 @@ from .models import Project, Contributor
 from .serializers import ProjectSerializer, ContributorSerializer
 from .permission import IsContributor
 
-class ProjectCreateView(generics.CreateAPIView):
+class ProjectCreate(generics.CreateAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-class ContributorCreateView(generics.CreateAPIView):
+class ContributorCreate(generics.CreateAPIView):
     queryset = Contributor.objects.all()
     serializer_class = ContributorSerializer
 
@@ -23,7 +23,7 @@ class ContributorCreateView(generics.CreateAPIView):
         serializer.save()
 
 
-class UserProjectsContributedListView(generics.ListAPIView):
+class ContributedProjectsByUser(generics.ListAPIView):
     serializer_class = ProjectSerializer
 
     def get_queryset(self):
@@ -31,13 +31,13 @@ class UserProjectsContributedListView(generics.ListAPIView):
         return Project.objects.filter(contributor__user=user).distinct()
     
 
-class ProjectDetailView(generics.RetrieveAPIView):
+class ProjectDetail(generics.RetrieveAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = [IsContributor]
 
 
-class ProjectContributorsListView(generics.ListAPIView):
+class ProjectContributors(generics.ListAPIView):
     serializer_class = ContributorSerializer
 
     def get_queryset(self):
