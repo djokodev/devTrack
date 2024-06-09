@@ -37,7 +37,7 @@ class ProjectDetail(generics.RetrieveAPIView):
     permission_classes = [IsContributor]
 
 
-class ProjectContributors(generics.ListAPIView):
+class ContributorsByProject(generics.ListAPIView):
     serializer_class = ContributorSerializer
 
     def get_queryset(self):

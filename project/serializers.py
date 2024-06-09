@@ -8,7 +8,8 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = ['name', 'description', 'type', 'author']
-    
+        fields = '__all__'
+            
     def create(self, validated_data):
         project = Project.objects.create(**validated_data)
         
@@ -24,4 +25,4 @@ class ProjectSerializer(serializers.ModelSerializer):
 class ContributorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contributor
-        fields = ['project', 'user', 'role', 'date_added']
+        fields = '__all__'

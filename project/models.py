@@ -20,6 +20,9 @@ class Project(models.Model):
     type = models.CharField(max_length=10, choices=PROJECT_TYPE_CHOICES)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f'{self.name}'
+
 
 class Contributor(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
