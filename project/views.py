@@ -1,7 +1,7 @@
 from rest_framework import generics, serializers
 from .models import Project, Contributor
 from .serializers import ProjectSerializer, ContributorSerializer
-from .permission import IsContributor
+from devTrack.permission import IsContributor
 
 class ProjectCreate(generics.CreateAPIView):
     queryset = Project.objects.all()
