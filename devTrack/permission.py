@@ -23,3 +23,7 @@ class IsIssueCreator(permissions.BasePermission):
 class IsCommentAuthor(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         return obj.author == request.user
+    
+class IsProjectAuthor(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj.author == request.user

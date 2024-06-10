@@ -1,7 +1,7 @@
 from rest_framework import generics, serializers
 from .models import Project, Contributor
 from .serializers import ProjectSerializer, ContributorSerializer
-from devTrack.permission import IsContributor
+from devTrack.permission import IsContributor, IsProjectAuthor
 
 class ProjectCreate(generics.CreateAPIView):
     queryset = Project.objects.all()
@@ -43,3 +43,15 @@ class ContributorsByProject(generics.ListAPIView):
     def get_queryset(self):
         project_id = self.kwargs['project_id'] 
         return Contributor.objects.filter(project_id=project_id)
+    
+
+class ProjectUpdate(generics.UpdateAPIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    permission_classes = [IsProjectAuthor]
+
+
+class ProjectDelete(generics.DestroyAPIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    permission_classes = [IsProjectAuthor]
