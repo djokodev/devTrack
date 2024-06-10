@@ -2,6 +2,9 @@ from rest_framework import generics, serializers
 from .models import Project, Contributor
 from .serializers import ProjectSerializer, ContributorSerializer
 from devTrack.permission import IsContributor, IsProjectAuthor
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
+
 
 class ProjectCreate(generics.CreateAPIView):
     queryset = Project.objects.all()
@@ -30,11 +33,19 @@ class ContributedProjectsByUser(generics.ListAPIView):
         user = self.request.user
         return Project.objects.filter(contributor__user=user).distinct()
     
+    @method_decorator(cache_page(60 * 20))  
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+    
 
 class ProjectDetail(generics.RetrieveAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = [IsContributor]
+
+    @method_decorator(cache_page(60 * 20)) 
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
 
 class ContributorsByProject(generics.ListAPIView):
@@ -43,6 +54,10 @@ class ContributorsByProject(generics.ListAPIView):
     def get_queryset(self):
         project_id = self.kwargs['project_id'] 
         return Contributor.objects.filter(project_id=project_id)
+    
+    @method_decorator(cache_page(60 * 20)) 
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
     
 
 class ProjectUpdate(generics.UpdateAPIView):

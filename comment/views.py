@@ -4,6 +4,8 @@ from .serializers import CommentSerializer
 from project.models import Contributor
 from rest_framework.exceptions import PermissionDenied
 from devTrack.permission import IsCommentAuthor, CommentContributor
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
 
 
 class CommentCreate(generics.CreateAPIView):
@@ -22,6 +24,10 @@ class commentDetail(generics.RetrieveAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = [CommentContributor]
+
+    @method_decorator(cache_page(60 * 20)) 
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
 
 class commentUpdate(generics.UpdateAPIView):

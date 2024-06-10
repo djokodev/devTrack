@@ -1,10 +1,11 @@
-from django.shortcuts import render
 from rest_framework import generics, serializers
 from .serializers import IssueSerializer
 from rest_framework.exceptions import PermissionDenied
 from .models import Issue
 from project.models import Contributor
 from devTrack.permission import IsIssueCreator, IsIssueContributor
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
 
 class IssueCreate(generics.CreateAPIView):
     queryset = Issue.objects.all()
@@ -34,6 +35,10 @@ class IssueDetail(generics.RetrieveAPIView):
     queryset = Issue.objects.all()
     serializer_class = IssueSerializer
     permission_classes = [IsIssueContributor]
+    
+    @method_decorator(cache_page(60 * 20)) 
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
 
 class IssueUpdate(generics.UpdateAPIView):
