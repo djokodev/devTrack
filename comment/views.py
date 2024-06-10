@@ -3,7 +3,7 @@ from .models import Comment
 from .serializers import CommentSerializer
 from project.models import Contributor
 from rest_framework.exceptions import PermissionDenied
-from devTrack.permission import IsCommentAuthor
+from devTrack.permission import IsCommentAuthor, CommentContributor
 
 
 class CommentCreate(generics.CreateAPIView):
@@ -18,7 +18,20 @@ class CommentCreate(generics.CreateAPIView):
         serializer.save(author=self.request.user)
 
 
-class commentDetailUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
+class commentDetail(generics.RetrieveAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [CommentContributor]
+
+
+class commentUpdate(generics.UpdateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = [IsCommentAuthor]
+
+
+class commentDelete(generics.DestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [IsCommentAuthor]
+
