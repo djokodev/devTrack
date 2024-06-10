@@ -25,6 +25,7 @@ urlpatterns = [
     path("api/user/", include('user.urls')),
     path("api/project/", include("project.urls")),
     path("api/issue/", include("issue.urls")),
+    path("api/comment/", include("comment.urls")),
 
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
 ]
