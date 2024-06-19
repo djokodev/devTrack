@@ -5,19 +5,20 @@ from devTrack.permission import IsAuthorPermission, IsContributorPermission
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
 from rest_framework import viewsets, serializers
+from rest_framework.viewsets import GenericViewSet
 
 
-class CacheListRetrieveMixin(ListModelMixin, RetrieveModelMixin):
-    @method_decorator(cache_page(60 * 20))
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
+# class CacheListRetrieveMixin(ListModelMixin, RetrieveModelMixin):
+#     @method_decorator(cache_page(60 * 20))
+#     def list(self, request, *args, **kwargs):
+#         return super().list(request, *args, **kwargs)
     
-    @method_decorator(cache_page(60 * 20))
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
+#     @method_decorator(cache_page(60 * 20))
+#     def retrieve(self, request, *args, **kwargs):
+#         return super().retrieve(request, *args, **kwargs)
     
 
-class ProjecViewSet(CacheListRetrieveMixin, viewsets.ModelViewSet):
+class ProjecViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = [IsAuthorPermission]
@@ -31,7 +32,7 @@ class ProjecViewSet(CacheListRetrieveMixin, viewsets.ModelViewSet):
         )
 
 
-class ContributorViewSet(CacheListRetrieveMixin, viewsets.ModelViewSet):
+class ContributorViewSet(viewsets.ModelViewSet):
     queryset = Contributor.objects.all()
     serializer_class = ContributorSerializer
     permission_classes = [IsContributorPermission]
@@ -46,7 +47,7 @@ class ContributorViewSet(CacheListRetrieveMixin, viewsets.ModelViewSet):
         serializer.save()
 
 
-class ContributedProjectsByUser(CacheListRetrieveMixin, viewsets.ReadOnlyModelViewSet):
+class ContributedProjectsByUser(viewsets.ReadOnlyModelViewSet):
     serializer_class = ProjectSerializer
 
     def get_queryset(self):
