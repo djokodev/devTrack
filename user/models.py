@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from datetime import date
 
 class User(AbstractUser):
     date_of_birth = models.DateField(null=True, blank=True)
@@ -10,3 +9,4 @@ class User(AbstractUser):
 
     def __str__(self):
         return f'{self.username} {self.email}'
+

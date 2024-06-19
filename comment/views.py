@@ -1,43 +1,39 @@
-from rest_framework import generics
+from rest_framework import viewsets
 from .models import Comment
 from .serializers import CommentSerializer
-from project.models import Contributor
 from rest_framework.exceptions import PermissionDenied
-from devTrack.permission import IsCommentAuthor, CommentContributor
+from devTrack.permission import IsContributorPermission, IsAuthorPermission
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
 
 
-class CommentCreate(generics.CreateAPIView):
+class CacheListRetrieveMixin(ListModelMixin, RetrieveModelMixin):
+    @method_decorator(cache_page(60 * 20))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @method_decorator(cache_page(60 * 20))
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+
+class CommentViewSet(CacheListRetrieveMixin, viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+
+    def get_permissions(self):
+        if self.action in ['update', 'partial_update', 'destroy']:
+            self.permission_classes = [IsAuthorPermission]
+        elif self.action in ['retrieve', 'list']:
+            self.permission_classes = [IsContributorPermission]
+        else:
+            self.permission_classes = [IsContributorPermission]
+        return super().get_permissions()
 
     def perform_create(self, serializer):
         issue = serializer.validated_data['issue']
         project = issue.project
-        if not Contributor.objects.filter(project=project, user=self.request.user).exists():
+        if not project.contributor_set.filter(user=self.request.user).exists():
             raise PermissionDenied("You are not a contributor to this project.")
         serializer.save(author=self.request.user)
-
-
-class commentDetail(generics.RetrieveAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-    permission_classes = [CommentContributor]
-
-    @method_decorator(cache_page(60 * 20)) 
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
-
-class commentUpdate(generics.UpdateAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-    permission_classes = [IsCommentAuthor]
-
-
-class commentDelete(generics.DestroyAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-    permission_classes = [IsCommentAuthor]
-

@@ -1,18 +1,14 @@
-from django.shortcuts import render
 from django.contrib.auth import get_user_model
-from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.viewsets import ModelViewSet
 from .serializers import UserSerializer
-from rest_framework.permissions import AllowAny
 
 User = get_user_model()
 
-class UserCreateView(CreateAPIView):
+class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [AllowAny]
 
-class UserDetailUpdateDestroyView(RetrieveUpdateDestroyAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    lookup_field = 'pk'
-
+    def perform_create(self, serializer):
+        validated_data = serializer.validated_data
+        validated_data.pop('confirm_password')
+        User.objects.create_user(**validated_data)

@@ -1,21 +1,41 @@
-from rest_framework import generics, serializers
 from .models import Project, Contributor
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from .serializers import ProjectSerializer, ContributorSerializer
-from devTrack.permission import IsContributor, IsProjectAuthor
+from devTrack.permission import IsAuthorPermission, IsContributorPermission
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
+from rest_framework import viewsets, serializers
 
 
-class ProjectCreate(generics.CreateAPIView):
+class CacheListRetrieveMixin(ListModelMixin, RetrieveModelMixin):
+    @method_decorator(cache_page(60 * 20))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @method_decorator(cache_page(60 * 20))
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+
+class ProjecViewSet(CacheListRetrieveMixin, viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    permission_classes = [IsAuthorPermission]
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        project = serializer.save(author=self.request.user)
+        Contributor.objects.create(
+            project=project,
+            user=project.author,
+            role='Author'
+        )
 
-class ContributorCreate(generics.CreateAPIView):
+
+class ContributorViewSet(CacheListRetrieveMixin, viewsets.ModelViewSet):
     queryset = Contributor.objects.all()
     serializer_class = ContributorSerializer
+    permission_classes = [IsContributorPermission]
+
 
     def perform_create(self, serializer):
         project = serializer.validated_data['project']
@@ -26,47 +46,9 @@ class ContributorCreate(generics.CreateAPIView):
         serializer.save()
 
 
-class ContributedProjectsByUser(generics.ListAPIView):
+class ContributedProjectsByUser(CacheListRetrieveMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = ProjectSerializer
 
     def get_queryset(self):
         user = self.request.user
         return Project.objects.filter(contributor__user=user).distinct()
-    
-    @method_decorator(cache_page(60 * 20))  
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-    
-
-class ProjectDetail(generics.RetrieveAPIView):
-    queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
-    permission_classes = [IsContributor]
-
-    @method_decorator(cache_page(60 * 20)) 
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
-
-class ContributorsByProject(generics.ListAPIView):
-    serializer_class = ContributorSerializer
-
-    def get_queryset(self):
-        project_id = self.kwargs['project_id'] 
-        return Contributor.objects.filter(project_id=project_id)
-    
-    @method_decorator(cache_page(60 * 20)) 
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-    
-
-class ProjectUpdate(generics.UpdateAPIView):
-    queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
-    permission_classes = [IsProjectAuthor]
-
-
-class ProjectDelete(generics.DestroyAPIView):
-    queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
-    permission_classes = [IsProjectAuthor]

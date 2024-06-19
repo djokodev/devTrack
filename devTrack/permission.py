@@ -1,29 +1,14 @@
 from rest_framework import permissions
 
-class IsContributor(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        return obj.contributor_set.filter(user=request.user).exists()
-    
-
-class IsIssueContributor(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        return obj.project.contributor_set.filter(user=request.user).exists()
-    
-
-class CommentContributor(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        return obj.issue.project.contributor_set.filter(user=request.user).exists()
-
-
-class IsIssueCreator(permissions.BasePermission):
+class IsAuthorPermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         return obj.author == request.user
-    
 
-class IsCommentAuthor(permissions.BasePermission):
+
+class IsContributorPermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        return obj.author == request.user
-    
-class IsProjectAuthor(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        return obj.author == request.user
+        if hasattr(obj, 'issue') and obj.issue.project.contributor_set.filter(user=request.user).exists():
+            return True
+        if hasattr(obj, 'project') and obj.project.contributor_set.filter(user=request.user).exists():
+            return True
+        return False
