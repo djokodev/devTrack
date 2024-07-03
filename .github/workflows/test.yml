@@ -25,5 +25,13 @@ jobs:
         with:
             push: true
             tags: ${{secrets.DOCKER_USER}}/devtrack:latest
-
+        
+  
+  deploy-to-render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+    
+      - name: deploy image
+        run : curl https://api.render.com/deploy/srv-cq2p0dcs1f4s73dcj39g?key=9L0DzWMevrc
      
