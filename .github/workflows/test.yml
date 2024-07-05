@@ -8,9 +8,27 @@ env:
     REGISTRY: docker.io
 
 jobs:
-  build-and-push:
+
+  test:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install pipenv
+
+      - name: Run unit tests
+        run: pipenv run python manage.py test
+
+
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps: 
       - uses: actions/checkout@v4
 
       - name: docker login
