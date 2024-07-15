@@ -33,8 +33,8 @@ class UserViewSetTests(APITestCase):
         response = self.client.post(self.url, self.user_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    # def test_create_user_underage(self):
-    #     self.user_data['date_of_birth'] = date.today().replace(year=date.today().year - 10)
-    #     response = self.client.post(self.url, self.user_data, format='json')
-    #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    #     self.assertIn('You must be at least 16 years old to register.', response.data['date_of_birth'])
+    def test_create_user_underage(self):
+        self.user_data['date_of_birth'] = date.today().replace(year=date.today().year - 10)
+        response = self.client.post(self.url, self.user_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('You must be at least 16 years old to register.', response.data['date_of_birth'])
