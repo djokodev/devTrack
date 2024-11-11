@@ -10,16 +10,6 @@ from django.utils.decorators import method_decorator
 from rest_framework.viewsets import GenericViewSet
 
 
-# class CacheListRetrieveMixin(ListModelMixin, RetrieveModelMixin):
-#     @method_decorator(cache_page(60 * 20))
-#     def list(self, request, *args, **kwargs):
-#         return super().list(request, *args, **kwargs)
-    
-#     @method_decorator(cache_page(60 * 20))
-#     def retrieve(self, request, *args, **kwargs):
-#         return super().retrieve(request, *args, **kwargs)
-    
-
 class IssueViewSet(viewsets.ModelViewSet):
     queryset = Issue.objects.all()
     serializer_class = IssueSerializer

@@ -1,25 +1,32 @@
 from .models import Project, Contributor
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
-from .serializers import ProjectSerializer, ContributorSerializer
+from .serializers import (
+    ProjectSerializer,
+    ContributorSerializer,
+    ProjectDetailSerializer,
+)
 from devTrack.permission import IsAuthorPermission, IsContributorPermission
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
 from rest_framework import viewsets, serializers
-from rest_framework.viewsets import GenericViewSet
 
 
-class ProjecViewSet(viewsets.ModelViewSet):
+class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = [IsAuthorPermission]
 
+    def get_serializer_class(self):
+        if self.action == "retrieve":
+            self.serializer_class = ProjectDetailSerializer
+        return super().get_serializer_class()
+
     def perform_create(self, serializer):
-        project = serializer.save(author=self.request.user)
-        Contributor.objects.create(
-            project=project,
-            user=project.author,
-            role='Author'
-        )
+        user = self.request.user
+        project = serializer.save(author=user)
+        if not Contributor.objects.filter(project=project, user=user).exists():
+            Contributor.objects.create(
+                project=project, user=project.author, role="Author"
+            )
 
 
 class ContributorViewSet(viewsets.ModelViewSet):
@@ -27,13 +34,17 @@ class ContributorViewSet(viewsets.ModelViewSet):
     serializer_class = ContributorSerializer
     permission_classes = [IsContributorPermission]
 
+    def get_queryset(self):
+        project_pk = self.kwargs["project_pk"]
+        return Contributor.objects.filter(project_id=project_pk)
 
     def perform_create(self, serializer):
-        project = serializer.validated_data['project']
+        project = serializer.validated_data["project"]
         user = self.request.user
         if project.author != user:
-            raise serializers.ValidationError("Only the author of the project can add contributors.")
-
+            raise serializers.ValidationError(
+                "Only the author of the project can add contributors."
+            )
         serializer.save()
 
 
