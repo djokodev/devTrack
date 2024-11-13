@@ -7,6 +7,8 @@ from project.views import ProjectViewSet, ContributorViewSet, ContributedProject
 from issue.views import IssueViewSet
 from comment.views import CommentViewSet
 from rest_framework_nested import routers as nested_routers
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+
 
 router = routers.SimpleRouter()
 
@@ -26,4 +28,6 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/', include(router.urls)),
     path('api/', include(projects_router.urls)),
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
 ]

@@ -3,9 +3,6 @@ from .models import Comment
 from .serializers import CommentSerializer
 from rest_framework.exceptions import PermissionDenied
 from devTrack.permission import IsContributorPermission, IsAuthorPermission
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
-from django.views.decorators.cache import cache_page
-from django.utils.decorators import method_decorator
 
 
 class CommentViewSet(viewsets.ModelViewSet):

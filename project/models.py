@@ -16,6 +16,7 @@ class Project(models.Model):
         (IOS, "iOS"),
         (ANDROID, "Android"),
     ]
+    
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField()
     type = models.CharField(max_length=10, choices=PROJECT_TYPE_CHOICES)
