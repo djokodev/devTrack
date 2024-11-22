@@ -10,6 +10,8 @@ from django.utils.decorators import method_decorator
 from rest_framework import viewsets, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -29,6 +31,28 @@ class ProjectViewSet(viewsets.ModelViewSet):
             Contributor.objects.create(
                 project=project, user=project.author, role="Author"
             )
+    
+    @extend_schema(
+        operation_id="list_projects_without_issues",
+        summary="Liste des projets sans issues",
+        description=(
+            "Ce endpoint renvoie tous les projets de l'utilisateur connecté "
+            "qui n'ont pas d'issues associées."
+        ),
+        parameters=[
+            OpenApiParameter(
+                name="Authorization",
+                location=OpenApiParameter.HEADER,
+                description="Token d'authentification JWT",
+                required=True,
+                type=str,
+            )
+        ],
+        responses={
+            200: ProjectSerializer(many=True),
+            401: {"description": "Utilisateur non authentifié"}
+        }
+    )
 
     @action(detail=False, methods=['get'])
     def not_issues_projects(self, request):
