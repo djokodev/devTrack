@@ -14,6 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
         if value:
             today = date.today()
             age_in_days = (today - value).days
+            
             age = age_in_days // 365
             if age < 16:
                 raise serializers.ValidationError("You must be at least 16 years old to register.")

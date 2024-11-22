@@ -139,7 +139,7 @@ REST_FRAMEWORK = {
 
 SPECTACULAR_SETTINGS = {
     'AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_frajmework_simplewt.authentication.JWTAuthentication',
     ),
     'SWAGGER_UI_SETTINGS': {
         'persistAuthorization': True,

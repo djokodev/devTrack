@@ -8,6 +8,8 @@ from devTrack.permission import IsAuthorPermission, IsContributorPermission
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
 from rest_framework import viewsets, serializers
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -28,6 +30,22 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 project=project, user=project.author, role="Author"
             )
 
+    @action(detail=False, methods=['get'])
+    def not_issues_projects(self, request):
+        """
+        Renvoie tous les projets sans issues associés.
+        """
+        user = request.user
+
+        if not user.is_authenticated:
+            return Response(
+                {"error": "Vous devez être authentifié pour accéder à cette ressource."},
+                status=401,
+            )
+
+        not_issues_in_projects = Project.objects.filter(author=user, issues__isnull=True).distinct()
+        serializer = self.get_serializer(not_issues_in_projects, many=True)
+        return Response(serializer.data)
 
 class ContributorViewSet(viewsets.ModelViewSet):
     queryset = Contributor.objects.all()
