@@ -21,6 +21,7 @@ class Project(models.Model):
     description = models.TextField()
     type = models.CharField(max_length=10, choices=PROJECT_TYPE_CHOICES)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
+    active = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.name}"

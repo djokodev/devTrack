@@ -11,6 +11,7 @@ from rest_framework import viewsets, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema, OpenApiParameter
+from project.filters import ProjectFilter
 
 
 
@@ -18,6 +19,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = [IsAuthorPermission]
+    filterset_class = ProjectFilter
 
     def get_serializer_class(self):
         if self.action == "retrieve":
@@ -54,7 +56,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         }
     )
 
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=['get'], url_path="not-issues-projects")
     def not_issues_projects(self, request):
         """
         Renvoie tous les projets sans issues associés.
@@ -70,6 +72,19 @@ class ProjectViewSet(viewsets.ModelViewSet):
         not_issues_in_projects = Project.objects.filter(author=user, issues__isnull=True).distinct()
         serializer = self.get_serializer(not_issues_in_projects, many=True)
         return Response(serializer.data)
+    
+    
+    @action(detail=False, methods=['get'])
+    def active_project(self, request):
+        projects = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(projects, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=True, methods=['get'],)
+    def une_fonction(self, request, pk=None):
+        projet = self.get_object()
+        return Response({"id": projet.id})
+    
 
 class ContributorViewSet(viewsets.ModelViewSet):
     queryset = Contributor.objects.all()
